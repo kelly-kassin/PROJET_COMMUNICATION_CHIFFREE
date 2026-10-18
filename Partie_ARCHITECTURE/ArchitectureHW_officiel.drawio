@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.8 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36">
   <diagram name="Archi HW Générale" id="5Aaq2zRKdKn6Zxh8ZfpT">
-    <mxGraphModel dx="1013" dy="516" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1044" dy="532" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -106,7 +106,7 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="yIsAm_NZNSILU1BBoMgr-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="TPM:&lt;div&gt;ST33TPHF2EI2C&lt;/div&gt;" vertex="1">
+        <mxCell id="yIsAm_NZNSILU1BBoMgr-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Secure Element:&lt;div&gt;&lt;span style=&quot;font-size:9.5pt;font-family:&amp;quot;Times New Roman&amp;quot;,serif;&lt;br/&gt;mso-fareast-font-family:&amp;quot;Times New Roman&amp;quot;;mso-ansi-language:FR-MA;mso-fareast-language:&lt;br/&gt;FR-MA;mso-bidi-language:AR-SA&quot;&gt;ATECC608C&lt;/span&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="60" width="120" x="675" y="82" as="geometry" />
         </mxCell>
         <mxCell id="yIsAm_NZNSILU1BBoMgr-19" edge="1" parent="1" source="yIsAm_NZNSILU1BBoMgr-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="yIsAm_NZNSILU1BBoMgr-16">
