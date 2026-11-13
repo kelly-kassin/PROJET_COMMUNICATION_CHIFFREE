@@ -18,10 +18,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -31,7 +32,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define LOG_UART huart2
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -48,9 +49,20 @@ UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart5;
 UART_HandleTypeDef huart2;
 
-/* USER CODE BEGIN PV */
+/* Definitions for defaultTask */
+osThreadId_t defaultTaskHandle;
+const osThreadAttr_t defaultTask_attributes = {
+  .name = "defaultTask",
+  .stack_size = 512 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 
+/* USER CODE BEGIN PV */
+static uint8_t rx_byte;
+static osMessageQueueId_t rxQueue;
 /* USER CODE END PV */
+
+
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -60,6 +72,8 @@ static void MX_UART4_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_UART5_Init(void);
 static void MX_USART2_UART_Init(void);
+void StartDefaultTask(void *argument);
+
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -103,9 +117,46 @@ int main(void)
   MX_TIM1_Init();
   MX_UART5_Init();
   MX_USART2_UART_Init();
-  /* USER CODE BEGIN 2 */
 
+  /* USER CODE BEGIN 2 */
+  setvbuf(stdout, NULL, _IONBF, 0);
   /* USER CODE END 2 */
+
+  /* Init scheduler */
+  osKernelInitialize();
+
+  /* USER CODE BEGIN RTOS_MUTEX */
+  /* add mutexes, ... */
+  /* USER CODE END RTOS_MUTEX */
+
+  /* USER CODE BEGIN RTOS_SEMAPHORES */
+  /* add semaphores, ... */
+  /* USER CODE END RTOS_SEMAPHORES */
+
+  /* USER CODE BEGIN RTOS_TIMERS */
+  /* start timers, add new ones, ... */
+  /* USER CODE END RTOS_TIMERS */
+
+  /* USER CODE BEGIN RTOS_QUEUES */
+  rxQueue = osMessageQueueNew(64, sizeof(uint8_t), NULL);
+  /* USER CODE END RTOS_QUEUES */
+
+  /* Create the thread(s) */
+  /* creation of defaultTask */
+  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+
+  /* USER CODE BEGIN RTOS_THREADS */
+  /* add threads, ... */
+  /* USER CODE END RTOS_THREADS */
+
+  /* USER CODE BEGIN RTOS_EVENTS */
+  /* add events, ... */
+  /* USER CODE END RTOS_EVENTS */
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -407,8 +458,59 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+int _write(int fd, char *ptr, int len)          // redirige printf vers l'UART
+{
+  HAL_UART_Transmit(&LOG_UART, (uint8_t *)ptr, len, HAL_MAX_DELAY);
+  return len;
+}
 
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)   // appelée à chaque octet reçu
+{
+  if (huart == &LOG_UART)
+  {
+    osMessageQueuePut(rxQueue, &rx_byte, 0, 0);
+    HAL_UART_Receive_IT(&LOG_UART, &rx_byte, 1);   // réarme la réception
+  }
+}
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_StartDefaultTask */
+/**
+  * @brief  Function implementing the defaultTask thread.
+  * @param  argument: Not used
+  * @retval None
+  */
+/* USER CODE END Header_StartDefaultTask */
+void StartDefaultTask(void *argument)
+{
+  /* USER CODE BEGIN 5 */
+	 char line[64];
+	  uint8_t idx = 0, c;
+
+	  HAL_UART_Receive_IT(&LOG_UART, &rx_byte, 1);
+	  printf("Nucleo prete\r\n");
+
+	  for(;;)
+	  {
+	    if (osMessageQueueGet(rxQueue, &c, NULL, osWaitForever) == osOK)
+	    {
+	      if (c == '\r' || c == '\n')
+	      {
+	        if (idx > 0)
+	        {
+	          line[idx] = '\0';
+	          printf("Recu : %s\r\n", line);   // renvoie la ligne au PC
+	          idx = 0;
+	        }
+	      }
+	      else if (idx < sizeof(line) - 1)
+	      {
+	        line[idx++] = c;
+	      }
+	    }
+	  }
+  /* USER CODE END 5 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
